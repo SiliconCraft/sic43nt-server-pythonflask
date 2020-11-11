@@ -1,17 +1,19 @@
 from SIC43NT_PythonServer.utils.keystream import Keystream
 
-class Calculate():
-    uid = ''
-    key = ''
 
-    flag_tamper = ''
-    time_stamp = ''
+class Calculate():
+    uid = 'N/A'
+    key = 'N/A'
+
+    flag_tamper = '-'
+    time_stamp = '-'
     time_stamp_int = 0
-    rolling_code = ''
+    rolling_code = '-'
 
     flag_tamper_from_server = 'N/A'
     time_stamp_from_server = 'N/A'
     rolling_code_from_server = 'N/A'
+    rlc = ''
 
     flag_tamper_decision = 'N/A'
     time_stamp_decision = 'N/A'
@@ -26,9 +28,21 @@ class Calculate():
             self.time_stamp_int = int(self.time_stamp, 16)
             self.rolling_code = raw_data[24:32]
             keystream = Keystream()
-            self.rolling_code_from_server = keystream.stream(self.key, self.time_stamp, 4).upper()
-        
+            self.rolling_code_from_server = keystream.stream(
+                self.key, self.time_stamp, 4).upper()
+
             if self.rolling_code == self.rolling_code_from_server:
                 self.rolling_code_decision = 'Correct'
             else:
-                self.rolling_code_decision = 'Incorrect'
+                if self.flag_tamper == 'AA':
+                    keystream = Keystream()
+                    self.rlc = keystream.stream(
+                        self.key, self.time_stamp, 12).upper()
+                    self.rolling_code_from_server = self.rlc[16:24]
+
+                    if self.rolling_code == self.rolling_code_from_server:
+                        self.rolling_code_decision = 'Correct'
+                    else:
+                        self.rolling_code_decision = 'Incorrect'
+                else:
+                    self.rolling_code_decision = 'Incorrect'
