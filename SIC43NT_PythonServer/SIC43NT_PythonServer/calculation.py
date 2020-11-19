@@ -36,6 +36,7 @@ class Calculate():
             else:
                 if self.flag_tamper == 'AA':
                     keystream = Keystream()
+					# for tags that can setting secure tamper
                     self.rlc = keystream.stream(
                         self.key, self.time_stamp, 12).upper()
                     self.rolling_code_from_server = self.rlc[16:24]
